@@ -231,7 +231,7 @@ router.route('/complete_object_info/:nickname').get((req, res) => {
 
 //get best rated objects
 router.route('/five_best').get((req, res) => {
-    Object.find({
+    FdObject.find({
         rate: { $gt: 4 },
     }).sort({ rate: -1, }).limit(5)
         .then(response => res.json(response))
