@@ -1,9 +1,8 @@
 const router = require('express').Router();
-const mongoose = require('mongoose');
 const Mathjs = require('mathjs');
 const upload = require("./../config/multer");
 
-const Object = require('../models/object.model');
+const FdObject = require('../models/fdObject.model');
 const RateHistory = require('../models/rateHistory.model');
 const Evaluator = require('../models/evaluator.model');
 
@@ -26,7 +25,7 @@ router.post("/create_object", upload.array("files", 20), async (req, res) => {
 
     categories = categories.split(',');
 
-    const newObject = new Object({ creator, name, nickname, categories: [ categories ], description: [ [description] ], urls, rate, rateNumber, });
+    const newObject = new FdObject({ creator, name, nickname, categories: [ categories ], description: [ [description] ], urls, rate, rateNumber, });
 
     newObject.save()
         .then(object => {
@@ -86,7 +85,7 @@ router.post("/create_object", upload.array("files", 20), async (req, res) => {
 router.route('/update_object_rate').post(async (req, res) => {
     const evaluatorId = await getEvaluatorIdBySessionId(req.body.sessionId);
     
-    Object.findById(req.body.objectId || req.body.id)
+    FdObject.findById(req.body.objectId || req.body.id)
     .then(object => {
 
         Evaluator.findById(evaluatorId)
@@ -174,7 +173,7 @@ router.route('/update_object_rate').post(async (req, res) => {
 router.route('/add_follower_to_object').post(async (req, res) => {
     const evaluatorId = await getEvaluatorIdBySessionId(req.body.sessionId);
 
-    Object.find({
+    FdObject.find({
         nickname: req.body.nickname,
     })
         .then(([ object ]) => {
@@ -208,7 +207,7 @@ router.route('/add_follower_to_object').post(async (req, res) => {
 
 //get complete object info
 router.route('/complete_object_info/:nickname').get((req, res) => {
-    Object.find({
+    FdObject.find({
         nickname: req.params.nickname
     })
         .then(([ object ]) => {
@@ -247,7 +246,7 @@ router.route('/home').get(async (req, res) => {
 
 //get worst rated objects
 router.route('/five_worst').get((req, res) => {
-    Object.find({
+    FdObject.find({
         rate: { $lt: 1 },
     }).sort({ rate: 1, }).limit(5)
         .then(response => res.json(response))
@@ -256,14 +255,14 @@ router.route('/five_worst').get((req, res) => {
 
 //get the last created objects
 router.route('/latest').get((req, res) => {
-    Object.find().sort({ createdAt: -1, }).limit(5)
+    FdObject.find().sort({ createdAt: -1, }).limit(5)
         .then(response => res.json(response))
         .catch(err => res.status(400).json('Error: ' + err));
 })
 
 //tells if a user can rate an object or not
 router.route('/user_can_rate_or_follow_object').post((req, res) => {
-    Object.find({
+    FdObject.find({
         nickname: req.body.objectNickname
     })
     .then(async ([ evaluatedObject ]) => {
@@ -338,7 +337,7 @@ router.route('/user_can_rate_or_follow_object').post((req, res) => {
 
 //tells if a username is already being used
 router.route('/object_nickname_in_use').post((req, res) => {
-    Object.find({
+    FdObject.find({
         nickname: req.body.nickname
     })
     .then(response => {
@@ -354,7 +353,7 @@ router.route('/object_nickname_in_use').post((req, res) => {
 })
 
 router.route('/update_objects').get((req, res) => {
-    Object.find()
+    FdObject.find()
         .then(objects => {
             for(let object of objects) {
                 //let { category, description, urls } = object;
@@ -396,7 +395,7 @@ router.route('/update_objects').get((req, res) => {
 router.route('/search_for_object_or_evaluator').post((req, res) => {
     const searchFor = req.body.searchFor;
   
-    Object.find({
+    FdObject.find({
         $or:[
             { "nickname": {$regex: searchFor, $options: "i"}, },
             { "name": {$regex: searchFor, $options: "i"}, }

@@ -5,7 +5,7 @@ const Mathjs = require('mathjs');
 const upload = require('./../config/multer');
 
 const Evaluator = require('../models/evaluator.model');
-const Object = require('../models/object.model');
+const FdObject = require('../models/fdObject.model');
 
 const Comment = require('../models/comment.model');
 
@@ -81,7 +81,7 @@ router.post("/comment_on_object", upload.array("files", 12), (req, res) => {
                             evaluator.save()
                                 .then(() => {
                                     
-                                    Object.findByIdAndUpdate(objectId, {
+                                    FdObject.findByIdAndUpdate(objectId, {
                                         $push: { comments: comment._id }
                                     }, {
                                         "useFindAndModify": false
@@ -859,7 +859,7 @@ router.route('/update_comment_rate').post(async (req, res) => {
 
 //return comments from a certain object
 router.route('/get_object_comments_by_section/:nickname&:commentSection').post((req, res) => {
-    Object.find({ nickname: req.params.nickname })
+    FdObject.find({ nickname: req.params.nickname })
         .then(async ([ object ]) => {
             const evaluatorId = await getEvaluatorIdBySessionId(req.body.sessionId);
 
@@ -893,7 +893,7 @@ router.route('/get_object_comments_by_section/:nickname&:commentSection').post((
 router.route('/get_object_comments').post((req, res) => {
 
     //get the comments by comment section according to the object and the user
-    Object.find({
+    FdObject.find({
         nickname: req.body.objectNickname || req.body.id,
     })
     .then(async ([ evaluatedObject ]) => {
@@ -1191,7 +1191,7 @@ router.route('/update_object_with_comment_content').post((req, res) => {
     Comment.findById(req.body.commentId)
         .then(comment => {
 
-            Object.findById(req.body.objectId)
+            FdObject.findById(req.body.objectId)
                 .then(object => {
 
                     let text, url;
@@ -1323,7 +1323,7 @@ router.route('/get_comment_complete_info').post(async (req, res) => {
                 }
 
                 const auxObject = {
-                    object: Object,
+                    object: FdObject,
                     post: Post,
                     queima: Queima,
                     segredinho: Segredinho,

@@ -3,7 +3,7 @@ const Evaluator = require('./evaluator.model');
 
 const Schema = mongoose.Schema;
 
-const objectSchema = new Schema({
+const fdObjectSchema = new Schema({
     creator: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Evaluator',
@@ -59,6 +59,6 @@ const objectSchema = new Schema({
     timestamps: true
 });
 
-const Object = mongoose.model('Object', objectSchema);
+const FdObject = mongoose.model('FdObject', fdObjectSchema);
 
-module.exports = Object;
+module.exports = FdObject;

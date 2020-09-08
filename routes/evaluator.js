@@ -4,7 +4,7 @@ const recommend = require('collaborative-filter');
 
 const upload = require('./../config/multer');
 
-const ObjectModel = require('../models/object.model');
+const ObjectModel = require('../models/fdObject.model');
 //const { Object as ds} = require('../models/object.model');
 
 const Evaluator = require('../models/evaluator.model');
