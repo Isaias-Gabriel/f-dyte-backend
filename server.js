@@ -31,21 +31,16 @@ connection.once('open', () => {
 
 const evaluatorRouter = require('./routes/evaluator');
 
-// const objectRouter = require('./routes/object');
+const objectRouter = require('./routes/fdObject');
 
-// const commentRouter = require('./routes/comment');
+const commentRouter = require('./routes/comment');
 
-// const postRouter = require('./routes/post');
-// const segredinhoRouter = require('./routes/segredinho');
-// const queimaRouter = require('./routes/queima');
-// const belleRouter = require('./routes/belle');
+const postRouter = require('./routes/post');
+const segredinhoRouter = require('./routes/segredinho');
+const queimaRouter = require('./routes/queima');
+const belleRouter = require('./routes/belle');
 
-// const notificationRouter = require('./routes/notification');
-
-//just a filler get response
-// app.get('/', (req, res) => {
-//     res.send('cavalo');
-// })
+const notificationRouter = require('./routes/notification');
 
 const test = require('./test');
 
@@ -53,16 +48,16 @@ app.use('', test);
 
 app.use('', evaluatorRouter);
 
-// app.use('', objectRouter);
+app.use('', objectRouter);
 
-// app.use('', commentRouter);
+app.use('', commentRouter);
 
-// app.use('', postRouter);
-// app.use('', segredinhoRouter);
-// app.use('', queimaRouter);
-// app.use('', belleRouter);
+app.use('', postRouter);
+app.use('', segredinhoRouter);
+app.use('', queimaRouter);
+app.use('', belleRouter);
 
-// app.use('', notificationRouter);
+app.use('', notificationRouter);
 
 // app.use(express.urlencoded({ extended: true }));
 // app.use(

@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const Mathjs = require('mathjs');
-const upload = require("./../config/multer");
+const upload = require("../config/multer");
 
 const FdObject = require('../models/fdObject.model');
 const RateHistory = require('../models/rateHistory.model');
