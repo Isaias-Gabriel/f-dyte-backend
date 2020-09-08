@@ -25,11 +25,7 @@ const { evaluatorSessionController, getEvaluatorIdBySessionId, deleteSession } =
 const canRateAgain = require('../AuxiliaryFunctions/canRateAgain');
 const belongToBoth = require('../AuxiliaryFunctions/belongToBoth');
 
-router.route('/home').get(async (req, res) => {
-    Evaluator.find()
-        .then(evaluators => res.json(evaluators))
-        .catch(err => res.status(400).json('Error: ' + err));
-});
+
 
 //sign up
 //create evaluator

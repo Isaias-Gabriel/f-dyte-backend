@@ -239,6 +239,12 @@ router.route('/five_best').get((req, res) => {
         .catch(err => res.status(400).json('Error: ' + err));
 })
 
+router.route('/home').get(async (req, res) => {
+    Evaluator.find()
+        .then(evaluators => res.json(evaluators))
+        .catch(err => res.status(400).json('Error: ' + err));
+});
+
 //get worst rated objects
 router.route('/five_worst').get((req, res) => {
     Object.find({
