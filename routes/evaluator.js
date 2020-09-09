@@ -5,7 +5,6 @@ const recommend = require('collaborative-filter');
 const upload = require('./../config/multer');
 
 const ObjectModel = require('../models/fdObject.model');
-//const { Object as ds} = require('../models/object.model');
 
 const Evaluator = require('../models/evaluator.model');
 
@@ -25,135 +24,139 @@ const { evaluatorSessionController, getEvaluatorIdBySessionId, deleteSession } =
 const canRateAgain = require('../AuxiliaryFunctions/canRateAgain');
 const belongToBoth = require('../AuxiliaryFunctions/belongToBoth');
 
-
+//fix security issues later on
 
 //sign up
 //create evaluator
-// router.route('/sign_up').post(async (req, res) => {
-//     //set a default name and profile image
-//     const { email, username, rate } = req.body;
-//     const rateNumber = 1;
-//     const name = "user I";
-//     const profilePictureUrl = "http://localhost:5000/files/" + "defaultEvaluatorProfilePicture.png";
+router.route('/sign_up').post(async (req, res) => {
+    //set a default name and profile image
+    const { email, username, password, rate } = req.body;
+    const rateNumber = 1;
+    const name = "user I";
+    const profilePictureUrl = "http://localhost:5000/files/" + "defaultEvaluatorProfilePicture.png";
         
-//     const password = await bcrypt.hash(req.body.password, 10);
+    //const password = await bcrypt.hash(req.body.password, 10);
 
-//     const newEvaluator = new Evaluator({ email, password, name, username, profilePictureUrl, rate, rateNumber });
+    const newEvaluator = new Evaluator({ email, password, name, username, profilePictureUrl, rate, rateNumber });
 
-//     newEvaluator.save()
-//         .then(async evaluator => {
-//             const sessionId = await bcrypt.hash(evaluator._id.toString(), 10);
+    newEvaluator.save()
+        .then(async evaluator => {
+            const sessionId = password + password;
 
-//             evaluatorSessionController(sessionId, evaluator._id);
+            evaluatorSessionController(sessionId, evaluator._id);
 
-//             const newRateHistory = new RateHistory({
-//                 evaluatorEvaluatedRelation: [
-//                     evaluator._id,
-//                     evaluator._id,
-//                 ],
-//                 evaluatorEvaluatedTypesRelation: [
-//                     "evaluator",
-//                     "evaluator",
-//                 ],
-//                 evaluatorEvaluatedRateRelation: [
-//                     evaluator.rate,
-//                     evaluator.rate,
-//                 ],
-//                 submittedRate: evaluator.rate,
-//                 evaluatorEvaluatedRateNumberRelation: [
-//                     1,
-//                     1,
-//                 ],
-//             });
+            const newRateHistory = new RateHistory({
+                evaluatorEvaluatedRelation: [
+                    evaluator._id,
+                    evaluator._id,
+                ],
+                evaluatorEvaluatedTypesRelation: [
+                    "evaluator",
+                    "evaluator",
+                ],
+                evaluatorEvaluatedRateRelation: [
+                    evaluator.rate,
+                    evaluator.rate,
+                ],
+                submittedRate: evaluator.rate,
+                evaluatorEvaluatedRateNumberRelation: [
+                    1,
+                    1,
+                ],
+            });
         
-//             newRateHistory.save()
-//                 .then(rateHistory => {
-//                     evaluator.ratedEvaluators.push(evaluator._id);
-//                     evaluator.rateHistory.push(rateHistory._id);
+            newRateHistory.save()
+                .then(rateHistory => {
+                    evaluator.ratedEvaluators.push(evaluator._id);
+                    evaluator.rateHistory.push(rateHistory._id);
             
-//                     evaluator.save()
-//                         .then(() => res.json({sessionId: sessionId}))
-//                         .catch(err => res.status(400).json('Error: ' + err));
+                    evaluator.save()
+                        .then(() => res.json({sessionId: sessionId}))
+                        .catch(err => res.status(400).json('Error: ' + err));
 
-//                 })
-//                 .catch(err => res.status(400).json('Error: ' + err));
+                })
+                .catch(err => res.status(400).json('Error: ' + err));
 
-//         })
-//         .catch(err => res.status(400).json('Error: ' + err));
+        })
+        .catch(err => res.status(400).json('Error: ' + err));
         
-// });
+});
 
 //log in
-// router.route('/log_in').post(async (req, res) => {
-//     const { email } = req.body;
-//     let username = undefined;
-//     if(!(email.includes("@"))) {
-//         username = email;
-//     }
+router.route('/log_in').post(async (req, res) => {
+    const { email, password } = req.body;
+    let username = undefined;
+    if(!(email.includes("@"))) {
+        username = email;
+    }
 
-//     //enter by username
-//     if(username) {
-//         //enter by email
-//         Evaluator.find({username: username})
-//             .then(([ evaluator ]) => {
+    //enter by username
+    if(username) {
+        //enter by email
+        Evaluator.find({username: username})
+            .then(([ evaluator ]) => {
 
-//             if(evaluator === undefined) {
-//                 res.json("Usuário não encontrado")
-//             }
+            if(evaluator === undefined) {
+                res.json("Usuário não encontrado")
+            }
 
-//             else {
-//                 bcrypt.compare(req.body.password, evaluator.password).then(async (result) => {
-//                     if(result) {
-//                         //generate a session id
-//                         const sessionId = await bcrypt.hash(evaluator._id.toString(), 10);
-//                         //verify if the id is already in use
+            else {
+                //bcrypt.compare(req.body.password, evaluator.password).then(async (result) => {
+                    //if(result) {
+                    if(evaluator.password === password) {
+                        //generate a session id
+                        //const sessionId = await bcrypt.hash(evaluator._id.toString(), 10);
+                        const sessionId = password + password;
+                        //verify if the id is already in use
 
-//                         evaluatorSessionController(sessionId, evaluator._id);
+                        evaluatorSessionController(sessionId, evaluator._id);
 
-//                         res.json({
-//                             sessionId: sessionId,
-//                             username: evaluator.username
-//                         });
-//                     }
-//                     else {
-//                         res.json("Senha incorreta.");
-//                     }
-//                 });
-//             }
-//         })
-//     }
+                        res.json({
+                            sessionId: sessionId,
+                            username: evaluator.username
+                        });
+                    }
+                    else {
+                        res.json("Senha incorreta.");
+                    }
+                //});
+            }
+        })
+    }
 
-//     //enter by email
-//     else {
-//         Evaluator.find({email: email})
-//             .then(([ evaluator ]) => {
+    //enter by email
+    else {
+        Evaluator.find({email: email})
+            .then(([ evaluator ]) => {
 
-//             if(evaluator === undefined) {
-//                 res.json("Usuário não encontrado")
-//             }
+            if(evaluator === undefined) {
+                res.json("Usuário não encontrado")
+            }
 
-//             else {
-//                 bcrypt.compare(req.body.password, evaluator.password).then(async (result) => {
-//                     if(result) {
-//                         //generate a session id
-//                         const sessionId = await bcrypt.hash(evaluator._id.toString(), 10);
-//                         //verify if the id is already in use
+            else {
+                // bcrypt.compare(req.body.password, evaluator.password).then(async (result) => {
+                //     if(result) {
+                    if(evaluator.password === password) {
+                        //generate a session id
+                        //const sessionId = await bcrypt.hash(evaluator._id.toString(), 10);
+                        const sessionId = password + password;
+                        //verify if the id is already in use
 
-//                         evaluatorSessionController(sessionId, evaluator._id);
+                        evaluatorSessionController(sessionId, evaluator._id);
 
-//                         res.json({
-//                             sessionId: sessionId,
-//                             username: evaluator.username
-//                         });
-//                     }
-//                     else {
-//                         res.json("Senha incorreta.");
-//                     }
-//                 });
-//             }
-//         })
-//     }
-// })
+                        res.json({
+                            sessionId: sessionId,
+                            username: evaluator.username
+                        });
+                    }
+                    else {
+                        res.json("Senha incorreta.");
+                    }
+                //});
+            }
+        })
+    }
+})
 
 //log out
 router.route('/log_out').post(async (req, res) => {
