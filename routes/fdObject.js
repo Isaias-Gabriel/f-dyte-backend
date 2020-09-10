@@ -25,7 +25,7 @@ router.post("/create_object", upload.array("files", 20), async (req, res) => {
 
     categories = categories.split(',');
 
-    const newObject = new FdObject({ creator, name, nickname, categories: [ categories ], description: [ [description] ], urls, rate, rateNumber, });
+    const newObject = new FdObject({ creator, name, nickname, categories: [ categories ], description: [ [description], [[], [], []] ], urls, rate, rateNumber, });
 
     newObject.save()
         .then(object => {
