@@ -16,6 +16,8 @@ const {
 
 const belongToBoth = require('../AuxiliaryFunctions/belongToBoth');
 
+require('dotenv').config();
+
 //create segredinho
 router.route('/post_segredinho').post(async (req, res) => {
     const { hiddenMessage, originalMessage, sessionId } = req.body;
@@ -69,7 +71,7 @@ router.route('/post_segredinho').post(async (req, res) => {
                                     segredinho.userName = 'User X';
                                     segredinho.userId = evaluator._id;
                                     segredinho.userUsername = evaluator.username;
-                                    segredinho.userProfilePictureUrl = "http://localhost:5000/files/" +
+                                    segredinho.userProfilePictureUrl = process.env.SERVER_URL + 
                                         "defaultSegredinhoEvaluatorProfilePicture.png";
 
                                     segredinho.save()

@@ -24,6 +24,8 @@ const { evaluatorSessionController, getEvaluatorIdBySessionId, deleteSession } =
 const canRateAgain = require('../AuxiliaryFunctions/canRateAgain');
 const belongToBoth = require('../AuxiliaryFunctions/belongToBoth');
 
+require('dotenv').config();
+
 //fix security issues later on
 
 //sign up
@@ -33,7 +35,7 @@ router.route('/sign_up').post(async (req, res) => {
     const { email, username, password, rate } = req.body;
     const rateNumber = 1;
     const name = "user I";
-    const profilePictureUrl = "http://localhost:5000/files/" + "defaultEvaluatorProfilePicture.png";
+    const profilePictureUrl = process.env.SERVER_URL + "defaultEvaluatorProfilePicture.png";
         
     //const password = await bcrypt.hash(req.body.password, 10);
 
@@ -1695,8 +1697,8 @@ router.route('/update_evaluators_profile_pic').get((req, res) => {
         .then(evaluators => {
             for(let ev of evaluators) {
                 if(!(ev.profilePictureUrl)) {
-                    ev.profilePictureUrl = "http://localhost:5000/files/" + "defaultEvaluatorProfilePicture.png";
-                    updateEvaluatorProfilePictureTrack("http://localhost:5000/files/" + "defaultEvaluatorProfilePicture.png", ev);
+                    ev.profilePictureUrl = process.env.SERVER_URL + "defaultEvaluatorProfilePicture.png";
+                    updateEvaluatorProfilePictureTrack(process.env.SERVER_URL + "defaultEvaluatorProfilePicture.png", ev);
 
                     ev.save()
                         .then(() => {})

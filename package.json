@@ -19,6 +19,7 @@
     "mathjs": "^7.2.0",
     "mongoose": "^5.10.3",
     "multer": "^1.4.2",
+    "multer-s3": "^2.9.0",
     "sjcl": "^1.0.8",
     "websocket": "^1.0.32"
   }
