@@ -30,6 +30,8 @@ router.post("/comment_on_object", upload.array("files", 12), (req, res) => {
     //create a comment document and save it
     const { content, sessionId, objectId, commentSection } = req.body;
 
+    console.log(req.files);
+
     //get files urls
     urls = [];
     const temp_files = req.files || [];
