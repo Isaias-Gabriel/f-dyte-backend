@@ -71,7 +71,7 @@ router.route('/post_segredinho').post(async (req, res) => {
                                     segredinho.userName = 'User X';
                                     segredinho.userId = evaluator._id;
                                     segredinho.userUsername = evaluator.username;
-                                    segredinho.userProfilePictureUrl = process.env.SERVER_URL + 
+                                    segredinho.userProfilePictureUrl = process.env.AWS_BUCKET_URL + 
                                         "defaultSegredinhoEvaluatorProfilePicture.png";
 
                                     segredinho.save()

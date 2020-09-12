@@ -11,7 +11,7 @@ const storageTypes = {
         bucket: 'f-dyte-upload',
         contentType: multerS3.AUTO_CONTENT_TYPE,
         acl: 'public-read',
-        filename: (req, file, cb) => {
+        key: (req, file, cb) => {
             cb(null, Date.now() + '-' + file.originalname)
         },
     }),

@@ -36,7 +36,7 @@ router.post("/comment_on_object", upload.array("files", 12), (req, res) => {
     urls = [];
     const temp_files = req.files || [];
     temp_files.map(file => {
-        urls.push("http://localhost:5000/files/" + file.filename)
+        urls.push(process.env.AWS_BUCKET_URL + file.location)
     })
 
     const newComment = new Comment({
@@ -130,7 +130,7 @@ router.post("/comment_on_post", upload.array("files", 12), (req, res) => {
     urls = [];
     const temp_files = req.files || [];
     temp_files.map(file => {
-        urls.push("http://localhost:5000/files/" + file.filename)
+        urls.push(process.env.AWS_BUCKET_URL + file.location)
     })
 
     const newComment = new Comment({
@@ -223,7 +223,7 @@ router.post("/comment_on_segredinho", upload.array("files", 12), (req, res) => {
     urls = [];
     const temp_files = req.files || [];
     temp_files.map(file => {
-        urls.push("http://localhost:5000/files/" + file.filename)
+        urls.push(process.env.AWS_BUCKET_URL + file.location)
     })
 
     const newComment = new Comment({
@@ -316,7 +316,7 @@ router.post("/comment_on_queima", upload.array("files", 12), (req, res) => {
     urls = [];
     const temp_files = req.files || [];
     temp_files.map(file => {
-        urls.push("http://localhost:5000/files/" + file.filename)
+        urls.push(process.env.AWS_BUCKET_URL + file.location)
     })
 
     const newComment = new Comment({
@@ -409,7 +409,7 @@ router.post("/comment_on_belle", upload.array("files", 12), (req, res) => {
     urls = [];
     const temp_files = req.files || [];
     temp_files.map(file => {
-        urls.push("http://localhost:5000/files/" + file.filename)
+        urls.push(process.env.AWS_BUCKET_URL + file.location)
     })
 
     const newComment = new Comment({
@@ -503,7 +503,7 @@ router.post("/comment_on_comment", upload.array("files", 12), (req, res) => {
     urls = [];
     const temp_files = req.files || [];
     temp_files.map(file => {
-        urls.push("http://localhost:5000/files/" + file.filename)
+        urls.push(process.env.AWS_BUCKET_URL + file.location)
     })
 
     const newComment = new Comment({
