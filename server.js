@@ -20,6 +20,9 @@ app.use(cors());
 app.use(express.json());
 
 const uri = process.env.ATLAS_URI;
+
+console.log({uri});
+
 mongoose.connect(uri, {
     useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true
 });
