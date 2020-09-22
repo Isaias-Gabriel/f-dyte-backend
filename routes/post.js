@@ -25,8 +25,9 @@ router.post('/post', upload.array("files", 6), async (req, res) => {
 
     //get files urls
     urls = [];
-    req.files.map(file => {
-        urls.push("http://localhost:5000/files/" + file.filename)
+    const temp_files = req.files || [];
+    temp_files.map(file => {
+        urls.push(file.location)
     })
 
     const newPost = new Post({ content: {

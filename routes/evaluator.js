@@ -670,7 +670,7 @@ function updateEvaluatorProfilePictureTrack(url, evaluator) {
 
 //update evaluator profile picture
 router.post("/update_evaluator_profile_picture", upload.array("files", 1), async (req, res) => {
-    const profilePictureUrl = "http://localhost:5000/files/" + req.files[0].filename;
+    const profilePictureUrl = req.files[0].location;
 
     Evaluator.find({
         username: req.body.originalUsername

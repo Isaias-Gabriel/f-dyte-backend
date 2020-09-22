@@ -19,8 +19,9 @@ router.post("/create_object", upload.array("files", 20), async (req, res) => {
 
     //get files urls
     urls = [[], [[], [], [], [], []]];
-    req.files.map(file => {
-        urls[0].push("http://localhost:5000/files/" + file.filename)
+    const temp_files = req.files || [];
+    temp_files.map(file => {
+        urls[0].push(file.location)
     })
 
     categories = categories.split(',');
