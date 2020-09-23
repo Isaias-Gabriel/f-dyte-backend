@@ -17,6 +17,11 @@ const port = process.env.PORT || 5000;
 //console.log('Listening on port 8000');
 
 app.use(cors());
+
+app.use(function(req, res) {
+    res.header("Access-Control-Allow-Origin", "https://www.fdytte.com");
+});
+
 app.use(express.json());
 
 const uri = process.env.ATLAS_URI;
@@ -43,11 +48,6 @@ const belleRouter = require('./routes/belle');
 const notificationRouter = require('./routes/notification');
 
 const test = require('./test');
-
-const corsOptions = {
-    origin: 'https://www.fdytte.com',
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-}
 
 app.use('', test);
 
