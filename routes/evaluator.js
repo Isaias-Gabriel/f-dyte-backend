@@ -1586,6 +1586,11 @@ async function getDocumentRecommendations(evaluatorId, includeAsRated) {
         let evaluators = await Evaluator.find({}, auxString,  {limit: 500});
         let docs = await auxObject[key].find({}, 'id', {limit: 1000, sort: {createdAt: -1}});
 
+        console.log(docs.length);
+        if(!(docs.length)) {
+            continue;
+        }
+
         //fill the ratings array
         evToRec[auxString] = evToRec[auxString].concat(includeAsRated[key + 's']);
 
