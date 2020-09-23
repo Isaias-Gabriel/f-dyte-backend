@@ -22,7 +22,7 @@ const { array } = require('./../config/multer');
 router.post('/post', upload.array("files", 6), async (req, res) => {
     const { content, sessionId } = req.body;
     const evaluadorId = await getEvaluatorIdBySessionId(sessionId);
-
+    
     //get files urls
     urls = [];
     const temp_files = req.files || [];
