@@ -18,10 +18,6 @@ const port = process.env.PORT || 5000;
 
 app.use(cors());
 
-app.use(function(req, res) {
-    res.header("Access-Control-Allow-Origin", "https://www.fdytte.com");
-});
-
 app.use(express.json());
 
 const uri = process.env.ATLAS_URI;
