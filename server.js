@@ -16,12 +16,7 @@ const port = process.env.PORT || 5000;
 // server.listen(webSocketsServerPort);
 //console.log('Listening on port 8000');
 
-var corsOptions = {
-    origin: 'https://www.fdytte.com',
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-}
-
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.json());
 
 const uri = process.env.ATLAS_URI;
@@ -49,6 +44,11 @@ const notificationRouter = require('./routes/notification');
 
 const test = require('./test');
 
+const corsOptions = {
+    origin: 'https://www.fdytte.com',
+    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}
+
 app.use('', test);
 
 app.use('', evaluatorRouter);
@@ -57,7 +57,7 @@ app.use('', objectRouter);
 
 app.use('', commentRouter);
 
-app.use('', postRouter);
+app.use('', cors(corsOptions), postRouter);
 app.use('', segredinhoRouter);
 app.use('', queimaRouter);
 app.use('', belleRouter);
