@@ -16,7 +16,7 @@ const port = process.env.PORT || 5000;
 // server.listen(webSocketsServerPort);
 //console.log('Listening on port 8000');
 
-app.use(cors({origin: ['https://www.fdytte.com', 'http://localhost:5000']}));
+app.use(cors({origin: ['https://www.fdytte.com', 'http://localhost:3000']}));
 app.use(express.json());
 
 const uri = process.env.ATLAS_URI;
