@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const Mathjs = require('mathjs');
-const upload = require("./../config/multer");
+const upload = require('./../config/multer');
+const cors = require('cors');
 
 const Evaluator = require('../models/evaluator.model');
 
@@ -18,8 +19,13 @@ const {
 const belongToBoth = require('../AuxiliaryFunctions/belongToBoth');
 const { array } = require('./../config/multer');
 
+const corsOptions = {
+    origin: 'https://www.fdytte.com',
+    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}
+
 //create post
-router.post('/post', upload.array("files", 6), async (req, res) => {
+router.post('/post', cors(corsOptions), upload.array("files", 6), async (req, res) => {
     const { content, sessionId } = req.body;
     const evaluadorId = await getEvaluatorIdBySessionId(sessionId);
     

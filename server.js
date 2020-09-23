@@ -57,7 +57,7 @@ app.use('', objectRouter);
 
 app.use('', commentRouter);
 
-app.use('', cors(corsOptions), postRouter);
+app.use('', postRouter);
 app.use('', segredinhoRouter);
 app.use('', queimaRouter);
 app.use('', belleRouter);
