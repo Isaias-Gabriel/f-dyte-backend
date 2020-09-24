@@ -2,6 +2,9 @@ const router = require('express').Router();
 const Mathjs = require('mathjs');
 const recommend = require('collaborative-filter');
 
+let nodemailer = require('nodemailer');
+let aws = require('aws-sdk');
+
 const upload = require('./../config/multer');
 
 const ObjectModel = require('../models/fdObject.model');
@@ -27,6 +30,114 @@ const belongToBoth = require('../AuxiliaryFunctions/belongToBoth');
 require('dotenv').config();
 
 //fix security issues later on
+
+//send an email with random numbers for the user confirm its email ownership
+router.route('/confirm_email').post(async (req, res) => {
+    const { email } = req.body;
+
+    let confirmationCode = '';
+
+    for(let i = 0; i < 6; i++) {
+        let aux = Math.random();
+        aux = Math.round(aux * 10);
+        confirmationCode += aux.toString();
+    }
+
+    aws.config.loadFromPath('config.json');
+
+    // Set the region
+    aws.config.update({region: 'us-east-2'});
+
+    const body_html = `<html>
+        <head></head>
+        <body>
+            <h1>
+                Confirm your email
+            </h1>
+            <div>
+                <p>
+                    You just signed up on f Dyte ^^
+                </p>
+
+                <p>
+                    You may need this code to verify your email:
+                </p>
+                <div>
+                    <div>`
+                        + confirmationCode +
+                    `</div>
+                </div>
+            </div>
+
+            <div>
+                <p>
+                    If you haven't sign up on f Dyte, ignore this email '-'
+                </p>
+            </div>
+        </body>
+        </html>`;
+
+    const subject = "f Dyte - email confirmation";
+
+    // The email body for recipients with non-HTML email clients.
+    const body_text = "Confirm your email\r\n"
+            + "You just signed up on f Dyte ^^\r\n"
+            + "You may need this code to verify your email:\r\n"
+            + confirmationCode + "\r\n\r\n\r\n"
+            + "If you haven't sign up on f Dyte, ignore this email '-'";
+
+    // Create sendEmail params 
+    let params = {
+        Destination: { /* required */
+            CcAddresses: [
+            'noreply@fdyte.com',
+            /* more items */
+            ],
+            ToAddresses: [
+                email,
+            /* more items */
+            ]
+        },
+        Message: { /* required */
+            Body: { /* required */
+                Html: {
+                    Charset: "UTF-8",
+                    Data: body_html,
+                },
+                Text: {
+                    Charset: "UTF-8",
+                    Data: body_text
+                }
+            },
+            Subject: {
+                Charset: 'UTF-8',
+                Data: subject
+            }
+        },
+        Source: 'noreply@fdyte.com', /* required */
+        ReplyToAddresses: [
+            'noreply@fdyte.com',
+            /* more items */
+        ],
+    };
+
+    // Create the promise and SES service object
+    let sendPromise = new aws.SES({apiVersion: '2010-12-01'}).sendEmail(params).promise();
+
+    // Handle promise's fulfilled/rejected states
+    sendPromise.then(
+        function(data) {
+            console.log('email sent - email id: ' + data.MessageId);
+        }
+    ).catch(
+        function(err) {
+            console.error(err, err.stack);
+        }
+    );
+    res.json({
+        confirmationCode: confirmationCode,
+    });
+});
 
 //sign up
 //create evaluator

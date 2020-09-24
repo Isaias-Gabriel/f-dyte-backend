@@ -17,7 +17,7 @@ const port = process.env.PORT || 5000;
 //console.log('Listening on port 8000');
 
 app.use(cors({
-    origin: ['https://www.fdytte.com', 'http://192.168.1.5:3000'],
+    origin: '*',//['https://www.fdytte.com', 'http://192.168.1.5:3000'],
     allowedHeaders: '*', //['Content-Type', 'Authorization'],
 }));
 app.use(express.json());
