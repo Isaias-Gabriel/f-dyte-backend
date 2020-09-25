@@ -810,11 +810,22 @@ router.post("/update_evaluator_profile_picture", upload.array("files", 1), async
 router.route('/complete_evaluator_info/:username').get(async (req, res) => {
     Evaluator.find({
         username: req.params.username
-    })
-        .then(([ evaluator ]) => {
+    },
+        'id name username profilePictureUrl rate rateNumber createdAt followedBy'
+    )
+        .then(([ temp_evaluator ]) => {
+            const evaluator = {
+                _id: temp_evaluator._id,
+                name: temp_evaluator.name,
+                username: temp_evaluator.username,
+                profilePictureUrl: temp_evaluator.profilePictureUrl,
+                rate: temp_evaluator.rate,
+                rateNumber: temp_evaluator.rateNumber,
+                createdAt: temp_evaluator.createdAt,
+            }
             res.json({
                 evaluator: evaluator,
-                followersNumber: evaluator.followedBy.length,
+                followersNumber: temp_evaluator.followedBy.length,
             })
         })
         .catch(err => res.status(400).json('Error: ' + err));

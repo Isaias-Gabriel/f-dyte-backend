@@ -230,7 +230,7 @@ router.route('/update_post_rate').post(async (req, res) => {
 
 })
 
-//get all the posts from one user
+//get all the posts from one user - need user logged in info
 router.route('/get_all_posts').post(async(req, res) => {
 
     const evaluatorId = await getEvaluatorIdBySessionId(req.body.sessionId);
@@ -279,7 +279,39 @@ router.route('/get_all_posts').post(async(req, res) => {
 
 })
 
-//get one post by its id
+
+//get all the posts from one user - don't need user logged in info
+router.route('/get_all_posts_no_user').post(async(req, res) => {
+
+    Post.find({
+        userUsername: req.body.username,
+    },
+        'id content userName userUsername userProfilePictureUrl rate rateNumber createdAt'
+    ).sort({ createdAt: -1, }).limit(30)
+        .then(posts => {
+
+            Segredinho.find({
+                userUsername: req.body.username,
+            },
+                'id content originalText userName userUsername userProfilePictureUrl rate rateNumber createdAt'
+            ).sort({ createdAt: -1, })
+                .then(segredinhos => {
+
+                    posts = posts.concat(segredinhos);
+
+                    posts = posts.sort(function(a, b){return b.createdAt - a.createdAt});
+
+                    res.json({
+                        posts: posts,
+                    });
+                })
+        })
+        .catch(err => res.status(400).json('Error: ' + err));
+
+})
+
+
+//get one post by its id - user rated or not rated post
 router.route('/get_post').post((req, res) => {
     Post.findById(req.body.id)
         .then(async (post) => {
@@ -295,6 +327,24 @@ router.route('/get_post').post((req, res) => {
                     })
                 })
                 .catch(err => res.status(400).json('Error: ' + err));
+
+        })
+        .catch(err => res.status(400).json('Error: ' + err));
+
+})
+
+//get one post by its id - no user info needed
+router.route('/get_post_no_user').post((req, res) => {
+    Post.find({
+        "_id": req.body.id,
+    },
+        'id content userName userUsername userProfilePictureUrl rate rateNumber'
+    )
+        .then(async (post) => {
+                    
+            res.json({
+                post: post,
+            })
 
         })
         .catch(err => res.status(400).json('Error: ' + err));
