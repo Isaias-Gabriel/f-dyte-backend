@@ -20,10 +20,10 @@ app.use(cors({
     origin: '*',//['https://www.fdytte.com', 'http://192.168.1.5:3000'],
     allowedHeaders: '*', //['Content-Type', 'Authorization'],
 }));
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    next();
-});
+// app.use((req, res, next) => {
+//     res.header('Access-Control-Allow-Origin', '*');
+//     next();
+// });
 app.use(express.json());
 
 const uri = process.env.ATLAS_URI;
