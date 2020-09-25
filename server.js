@@ -16,10 +16,12 @@ const port = process.env.PORT || 5000;
 // server.listen(webSocketsServerPort);
 //console.log('Listening on port 8000');
 
-app.use(cors({
-    origin: '*',//['https://www.fdytte.com', 'http://192.168.1.5:3000'],
-    allowedHeaders: '*', //['Content-Type', 'Authorization'],
-}));
+app.use(cors());
+
+// {
+//     origin: '*',//['https://www.fdytte.com', 'http://192.168.1.5:3000'],
+//     allowedHeaders: '*', //['Content-Type', 'Authorization'],
+// }
 // app.use((req, res, next) => {
 //     res.header('Access-Control-Allow-Origin', '*');
 //     next();
