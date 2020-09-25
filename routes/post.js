@@ -85,8 +85,6 @@ router.post('/post', upload.array("files", 6), async (req, res) => {
                                     post.save()
                                         .then(updatedPost => {
 
-                                            res.header("Access-Control-Allow-Origin", "https://www.fdytte.com");
-
                                             const newNotification = new Notification({
                                                 content: {
                                                     caption: evaluator.name + ' just posted something',
