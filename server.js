@@ -8,13 +8,13 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
 
-// const webSocketsServerPort = 8000;
-// const webSocketServer = require('websocket').server;
-// const http = require('http');
+const webSocketsServerPort = 8000;
+const webSocketServer = require('websocket').server;
+const http = require('http');
 
-// const server = http.createServer();
-// server.listen(webSocketsServerPort);
-//console.log('Listening on port 8000');
+const server = http.createServer();
+server.listen(webSocketsServerPort);
+console.log('Listening on port 8000');
 
 app.use(cors({
     origin: '*',//['https://www.fdytte.com', 'http://192.168.1.5:3000'],
@@ -72,13 +72,13 @@ app.use('', notificationRouter);
 //   express.static(path.resolve(__dirname, "tmp", "uploads"))
 // );
 
-// const wsServer = new webSocketServer({
-//     httpServer: server,
-// })
+const wsServer = new webSocketServer({
+    httpServer: server,
+})
 
-// const requestFunction = require('./webSocketServer/webSocketServer');
+const requestFunction = require('./webSocketServer/webSocketServer');
 
-// wsServer.on('request', requestFunction);
+wsServer.on('request', requestFunction);
 
 app.listen(port, () => {
     console.log(`Server is running on port: ${port}`);
