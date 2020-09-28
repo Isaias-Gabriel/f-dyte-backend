@@ -27,6 +27,8 @@ const { evaluatorSessionController, getEvaluatorIdBySessionId, deleteSession } =
 const canRateAgain = require('../AuxiliaryFunctions/canRateAgain');
 const belongToBoth = require('../AuxiliaryFunctions/belongToBoth');
 
+const { hash, compare } = require('../AuxiliaryFunctions/fDyteHash');
+
 require('dotenv').config();
 
 //fix security issues later on
@@ -143,18 +145,18 @@ router.route('/confirm_email').post(async (req, res) => {
 //create evaluator
 router.route('/sign_up').post(async (req, res) => {
     //set a default name and profile image
-    const { email, username, password, rate } = req.body;
+    const { email, username, rate } = req.body;
     const rateNumber = 1;
     const name = "user I";
     const profilePictureUrl = process.env.AWS_BUCKET_URL + "defaultEvaluatorProfilePicture.png";
         
-    //const password = await bcrypt.hash(req.body.password, 10);
+    const password = hash(req.body.password);
 
     const newEvaluator = new Evaluator({ email, password, name, username, profilePictureUrl, rate, rateNumber });
 
     newEvaluator.save()
         .then(async evaluator => {
-            const sessionId = password + password;
+            const sessionId = hash(Date.now().toString() + evaluator._id);
 
             evaluatorSessionController(sessionId, evaluator._id);
 
@@ -216,7 +218,7 @@ router.route('/log_in').post(async (req, res) => {
             else {
                 //bcrypt.compare(req.body.password, evaluator.password).then(async (result) => {
                     //if(result) {
-                    if(evaluator.password === password) {
+                    if(compare(evaluator.password, password)) {
                         //generate a session id
                         //const sessionId = await bcrypt.hash(evaluator._id.toString(), 10);
                         const sessionId = password + password;
