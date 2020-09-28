@@ -221,7 +221,7 @@ router.route('/log_in').post(async (req, res) => {
                     if(compare(evaluator.password, password)) {
                         //generate a session id
                         //const sessionId = await bcrypt.hash(evaluator._id.toString(), 10);
-                        const sessionId = password + password;
+                        const sessionId = hash(Date.now().toString() + evaluator._id);
                         //verify if the id is already in use
 
                         evaluatorSessionController(sessionId, evaluator._id);
