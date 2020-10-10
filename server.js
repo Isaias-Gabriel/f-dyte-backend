@@ -68,7 +68,7 @@ app.use('', belleRouter);
 
 app.use('', notificationRouter);
 
-app.use('', systemMetadataUser);
+app.use('/system_metadata/', systemMetadataUser);
 
 // app.use(express.urlencoded({ extended: true }));
 // app.use(
