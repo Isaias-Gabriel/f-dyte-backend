@@ -49,6 +49,8 @@ const belleRouter = require('./routes/belle');
 
 const notificationRouter = require('./routes/notification');
 
+const systemMetadataUser = require('./routes/systemMetadata/user');
+
 const test = require('./test');
 
 app.use('', test);
@@ -65,6 +67,8 @@ app.use('', queimaRouter);
 app.use('', belleRouter);
 
 app.use('', notificationRouter);
+
+app.use('', systemMetadataUser);
 
 // app.use(express.urlencoded({ extended: true }));
 // app.use(
