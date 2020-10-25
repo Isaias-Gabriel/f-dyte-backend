@@ -283,6 +283,7 @@ router.route('/log_out').post(async (req, res) => {
 
 //update user's rate
 router.route('/update_user_rate').post(async (req, res) => {
+
     const evaluatorId = await getEvaluatorIdBySessionId(req.body.sessionId);
 
     Evaluator.findById(req.body.evaluatedId)
@@ -311,12 +312,12 @@ router.route('/update_user_rate').post(async (req, res) => {
                             "evaluator",
                         ],
                         evaluatorEvaluatedRateRelation: [
-                            eCurrentRate,
+                            evaluatorRate,
                             newRate,
                         ],
                         submittedRate: submittedRate,
                         evaluatorEvaluatedRateNumberRelation: [
-                            eCurrentRateNumber,
+                            evaluatorRateNumber,
                             evaluatedRateNumber + 1,
                         ],
                     });
@@ -1691,7 +1692,7 @@ async function getDocumentRecommendations(evaluatorId, includeAsRated) {
         let evaluators = await Evaluator.find({}, auxString,  {limit: 500});
         let docs = await auxObject[key].find({}, 'id', {limit: 1000, sort: {createdAt: -1}});
 
-        console.log(docs.length);
+        //console.log(docs.length);
         if(!(docs.length)) {
             continue;
         }

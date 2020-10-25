@@ -94,7 +94,7 @@ router.route('/update_object_rate').post(async (req, res) => {
 
                 const evaluatorRate = Number(evaluator.rate);
                 const evaluatorRateNumber = Number(evaluator.rateNumber);
-                
+
                 const submittedRate = Number(req.body.rateToSubmit || req.body.rate);
 
                 const evaluatedRate = Number(object.rate);
@@ -112,13 +112,13 @@ router.route('/update_object_rate').post(async (req, res) => {
                         "object",
                     ],
                     evaluatorEvaluatedRateRelation: [
-                        eCurrentRate,
+                        evaluatorRate,
                         newRate,
                     ],
                     submittedRate: submittedRate,
                     evaluatorEvaluatedRateNumberRelation: [
-                        eCurrentRateNumber,
-                        oCurrentRateNumber + 1,
+                        evaluatorRateNumber,
+                        evaluatedRateNumber + 1,
                     ],
                 });
 
