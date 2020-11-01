@@ -15,6 +15,7 @@ const {
 } = require("../Controllers/evaluatorSessionController");
 
 const belongToBoth = require('../AuxiliaryFunctions/belongToBoth');
+const calculateRate = require('../AuxiliaryFunctions/calculateRate');
 
 require('dotenv').config();
 
@@ -141,35 +142,16 @@ router.route('/update_segredinho_rate').post(async (req, res) => {
             Evaluator.findById(evaluatorId)
                 .then(evaluator => {
 
-                    const eCurrentRate = Number(evaluator.rate);
-                    const eCurrentRateNumber = Number(evaluator.rateNumber);
+                    const evaluatorRate = Number(evaluator.rate);
+                    const evaluatorRateNumber = Number(evaluator.rateNumber);
 
                     //calculates object's new rate
                     const submittedRate = Number(req.body.rate);
 
-                    const segredinhoCurrentRate = Number(segredinho.rate);
-                    const segredinhoRateNumber = Number(segredinho.rateNumber);
+                    const evaluatedRate = Number(segredinho.rate);
+                    const evaluatedRateNumber = Number(segredinho.rateNumber);
 
-                    //g(x,y)= ((100)/(46050)ln(x)+(1)/(4472120) (y*10000000000)^((1)/(2))) (-1000)+100
-                    const sWeight = ((100/46050) * Mathjs.log(segredinhoRateNumber) + 
-                        (1/4472120) * Mathjs.pow((segredinhoCurrentRate * 10000000000),(1/2)))*(-1000) + 100 ;
-
-                    //h(x,y) = (100)/(46050)ln(x)+(1)/(4472120) ((y - 0.5)*10000000000)^((1)/(2))
-                    const eWeight = (100/46050) * Mathjs.log(eCurrentRateNumber) + 
-                        (1/4472120) * Mathjs.pow(((eCurrentRate - 0.5) * 10000000000),(1/2));
-                    
-                    //finalWeight = eWeight * (sWeight/100)
-                    const finalWeight = eWeight * (sWeight/100);
-
-                    //newRate = (1*currentRate + finalWeight*submittedRate)/1+finalWeight
-                    const newRate = (segredinhoCurrentRate + finalWeight * submittedRate ) / (1 + finalWeight);
-
-                    if(newRate > 5) {
-                        newRate = 5;
-                    }
-                    else if(newRate < 0) {
-                        newRate = 0;
-                    }
+                    const newRate = calculateRate(evaluatorRate, evaluatedRate, evaluatorRateNumber, evaluatedRateNumber, submittedRate);
 
                     const newRateHistory = new RateHistory({
                         evaluatorEvaluatedRelation: [
@@ -181,13 +163,13 @@ router.route('/update_segredinho_rate').post(async (req, res) => {
                             "segredinho",
                         ],
                         evaluatorEvaluatedRateRelation: [
-                            evaluator.rate,
+                            evaluatorRate,
                             newRate,
                         ],
                         submittedRate: submittedRate,
                         evaluatorEvaluatedRateNumberRelation: [
-                            evaluator.rateNumber,
-                            segredinhoRateNumber + 1,
+                            evaluatorRateNumber,
+                            evaluatedRateNumber + 1,
                         ]
                     });
 
@@ -195,7 +177,7 @@ router.route('/update_segredinho_rate').post(async (req, res) => {
                         .then(rateHistory => {
                             
                             segredinho.rate = newRate;
-                            segredinho.rateNumber = segredinhoRateNumber + 1;
+                            segredinho.rateNumber = evaluatedRateNumber + 1;
                             segredinho.rateHistory.push(rateHistory._id);
 
                             segredinho.save()
@@ -204,7 +186,9 @@ router.route('/update_segredinho_rate').post(async (req, res) => {
                                     evaluator.rateHistory.push(rateHistory._id);
 
                                     evaluator.save()
-                                        .then(() => res.json(updatedSegredinho.rate))
+                                        .then(() => res.json({
+                                            rate: updatedSegredinho.rate,
+                                        }))
                                         .catch(err => res.status(400).json('Error: ' + err));
                                     
                                 })

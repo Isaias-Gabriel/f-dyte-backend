@@ -144,6 +144,7 @@ router.post('/post', upload.array("files", 6), async (req, res) => {
 
 //update post rate
 router.route('/update_post_rate').post(async (req, res) => {
+
     const evaluatorId = await getEvaluatorIdBySessionId(req.body.sessionId);
 
     Post.findById(req.body.id)
@@ -187,7 +188,7 @@ router.route('/update_post_rate').post(async (req, res) => {
                         .then(rateHistory => {
                             
                             post.rate = newRate;
-                            post.rateNumber = postRateNumber + 1;
+                            post.rateNumber = evaluatedRateNumber + 1;
                             post.rateHistory.push(rateHistory._id);
 
                             post.save()
@@ -196,7 +197,9 @@ router.route('/update_post_rate').post(async (req, res) => {
                                     evaluator.rateHistory.push(rateHistory._id);
 
                                     evaluator.save()
-                                        .then(() => res.json(updatedPost.rate))
+                                        .then(() => res.json({
+                                            rate: updatedPost.rate
+                                        }))
                                         .catch(err => res.status(400).json('Error: ' + err));
                                     
                                 })
