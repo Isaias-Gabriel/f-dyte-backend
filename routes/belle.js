@@ -71,6 +71,7 @@ router.post("/belle", upload.array("files", 6), async (req, res) => {
                                     belle.userName = evaluator.name;
                                     belle.userId = evaluator._id;
                                     belle.userUsername = evaluator.username;
+                                    belle.userProfilePictureUrl = evaluator.profilePictureUrl;
 
                                     belle.save()
                                         .then(updatedBelle => res.json(updatedBelle))
