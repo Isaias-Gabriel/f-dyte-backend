@@ -1665,7 +1665,7 @@ const returnDocuments = async (ids, result, whichModel) => {
     const documents = await auxObject[whichModel].find({
         '_id': { $in: recIds },
         'commentOn': { $ne: 'object' },
-    }, 'id type content userName userUsername userProfilePictureUrl rate rateNumber name nickname description urls createdAt')
+    }, 'id type content userName userUsername userProfilePictureUrl rate rateNumber name nickname categories description urls createdAt')
 
     return documents;
 }
