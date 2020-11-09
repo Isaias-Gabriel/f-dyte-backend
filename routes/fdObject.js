@@ -126,7 +126,7 @@ router.route('/update_object_rate').post(async (req, res) => {
                     .then(rateHistory => {
                         
                         object.rate = newRate;
-                        object.rateNumber = oCurrentRateNumber + 1;
+                        object.rateNumber = evaluatedRateNumber + 1;
                         object.rateHistory.push(rateHistory._id);
                         
                         object.save()
