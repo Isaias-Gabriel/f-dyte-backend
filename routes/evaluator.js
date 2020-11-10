@@ -1655,7 +1655,7 @@ const returnDocuments = async (ids, result, whichModel) => {
         comment: Comment,
     }
 
-    const recIndexes = result.slice(0,10);
+    const recIndexes = result.slice(0, 100);
     const recIds = [];
 
     for(let rId of recIndexes) {
@@ -1678,49 +1678,49 @@ async function getDocumentRecommendations(evaluatorId, includeAsRated) {
         queima: Queima,
         belle: Belle,
         comment: Comment,
+        segredinho: Segredinho,
     }
 
     const keys = Object.keys(auxObject);
     let toReturn = [];
     
     for(let key of keys) {
-
         const ratings = [], dIds = [];
         const auxString = 'rated' + key[0].toUpperCase() + key.substring(1,20) + 's';
 
-        let evToRec = await Evaluator.findById(evaluatorId, auxString);
-        let evaluators = await Evaluator.find({}, auxString,  {limit: 500});
-        let docs = await auxObject[key].find({}, 'id', {limit: 1000, sort: {createdAt: -1}});
+        let evaluatorToRecommendTo = await Evaluator.findById(evaluatorId, auxString);
+        let evaluatorsToCompareWith = await Evaluator.find({}, auxString,  {limit: 3000});
+        let documents = await auxObject[key].find({}, 'id', {limit: 10000, sort: {createdAt: -1}});
 
-        //console.log(docs.length);
-        if(!(docs.length)) {
+        //console.log(documents.length);
+        if(!(documents.length)) {
             continue;
         }
 
         //fill the ratings array
-        evToRec[auxString] = evToRec[auxString].concat(includeAsRated[key + 's']);
+        evaluatorToRecommendTo[auxString] = evaluatorToRecommendTo[auxString].concat(includeAsRated[key + 's']);
 
-        const trmInd = evaluators.findIndex(
+        const trmInd = evaluatorsToCompareWith.findIndex(
             (el) => {
-                if(el._id.toString() === evToRec._id.toString()) {
+                if(el._id.toString() === evaluatorToRecommendTo._id.toString()) {
                     return el;
                 }
             }
         );
 
         if(!(trmInd === -1)) {
-            evaluators = evaluators.slice(0, trmInd).concat(evaluators.slice(trmInd + 1, evaluators.length));
+            evaluatorsToCompareWith = evaluatorsToCompareWith.slice(0, trmInd).concat(evaluatorsToCompareWith.slice(trmInd + 1, evaluatorsToCompareWith.length));
         }
 
-        evaluators.unshift(evToRec);
+        evaluatorsToCompareWith.unshift(evaluatorToRecommendTo);
 
-        const evLen = evaluators.length;
+        const evLen = evaluatorsToCompareWith.length;
         let counter1 = 0, addId = true;
 
-        for(let ev of evaluators) {
+        for(let ev of evaluatorsToCompareWith) {
             const auxArray = [];
     
-            for(let p of docs) {
+            for(let p of documents) {
                 if(ev[auxString].includes(p._id.toString())) {
                     auxArray.push(1);
                 }
@@ -1780,7 +1780,7 @@ async function getDocumentRecommendations(evaluatorId, includeAsRated) {
 
     }
 
-    toReturn = toReturn.sort(function(a, b){return b.createdAt - a.createdAt});
+    toReturn = toReturn.sort(function(a, b){return b.createdAt - a.createdAt}).slice(0, 100);
     
     return toReturn;
 
