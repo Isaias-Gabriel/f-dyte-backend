@@ -1798,7 +1798,7 @@ router.route('/get_recommendations').post(async (req, res) => {
     //console.log(recommendations);
 
     res.json({
-        rec: recommendations,
+        recommendations: recommendations,
     });
 
 })
