@@ -117,7 +117,12 @@ router.post('/post', upload.array("files", 6), async (req, res) => {
                                         
                                                     }
 
-                                                    res.json({
+                                                    res.header()
+
+                                                    res.status(200).header('Access-Control-Allow-Headers', 'Content-Type')
+                                                    .header('Access-Control-Allow-Origin', '*')
+                                                    .header('Access-Control-Allow-Methods', 'OPTIONS,POST,GET')
+                                                    .json({
                                                         post: updatedPost,
                                                         notification: notification,
                                                     });
