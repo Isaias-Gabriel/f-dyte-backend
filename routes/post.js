@@ -119,9 +119,11 @@ router.post('/post', upload.array("files", 6), async (req, res) => {
 
                                                     res.header()
 
-                                                    res.status(200).header('Access-Control-Allow-Headers', 'Content-Type')
-                                                    .header('Access-Control-Allow-Origin', '*')
-                                                    .header('Access-Control-Allow-Methods', 'OPTIONS,POST,GET')
+                                                    res.status(200)
+                                                    res.header('Access-Control-Allow-Origin', '*')
+                                                    res.header('Access-Control-Allow-Credentials', true)
+                                                    res.header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+                                                    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
                                                     .json({
                                                         post: updatedPost,
                                                         notification: notification,
