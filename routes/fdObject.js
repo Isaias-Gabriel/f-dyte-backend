@@ -381,7 +381,7 @@ router.route('/search_for_object_or_evaluator').post((req, res) => {
             { "nickname": {$regex: searchFor, $options: "i"}, },
             { "name": {$regex: searchFor, $options: "i"}, }
         ]
-    }).limit(10)
+    }, 'id name nickname urls type').limit(10)
         .then(objects => {
 
             Evaluator.find({
@@ -389,7 +389,7 @@ router.route('/search_for_object_or_evaluator').post((req, res) => {
                     { "username": {$regex: searchFor, $options: "i"}, },
                     { "name": {$regex: searchFor, $options: "i"}, }
                 ]
-            }).limit(10)
+            }, 'id name username profilePictureUrl type').limit(10)
                 .then(evaluators => {
                     res.json(objects.concat(evaluators));
                 })

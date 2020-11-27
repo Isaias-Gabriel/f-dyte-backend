@@ -330,7 +330,7 @@ router.route('/update_user_rate').post(async (req, res) => {
 
     const evaluatorId = await getEvaluatorIdBySessionId(req.body.sessionId);
 
-    Evaluator.findById(req.body.evaluatedId)
+    Evaluator.findById(req.body.evaluatedId || req.body.id)
         .then(evaluated => {
 
             Evaluator.findById(evaluatorId)
@@ -339,7 +339,7 @@ router.route('/update_user_rate').post(async (req, res) => {
                     const evaluatorRate = Number(evaluator.rate);
                     const evaluatorRateNumber = Number(evaluator.rateNumber);
 
-                    const submittedRate = Number(req.body.rateToSubmit);
+                    const submittedRate = Number(req.body.rateToSubmit || req.body.rate);
 
                     const evaluatedRate = Number(evaluated.rate);
                     const evaluatedRateNumber = Number(evaluated.rateNumber);
