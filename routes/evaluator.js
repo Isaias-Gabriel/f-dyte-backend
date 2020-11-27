@@ -37,7 +37,40 @@ require('dotenv').config();
 
 //send an email with random numbers for the user confirm its email ownership
 router.route('/confirm_email').post(async (req, res) => {
-    const { email } = req.body;
+    const { email, language } = req.body;
+
+    const staticText = {
+        'pt-BR': {
+            subject: 'f Dyte - confirmação de e-mail',
+
+            header: 'Confirme seu e-mail',
+            paragraphs: [
+                'Você acabou de criar sua conta no f Dyte ^^',
+                'Voce pode precisar deste código para verificar seu e-mail:',
+            ],
+            lowerMessage: "Se você não criou uma conta no f Dyte, ignore este e-mail '-'",
+        },
+        'en-US': {
+            subject: 'f Dyte - email confirmation',
+
+            header: 'Confirm your email',
+            paragraphs: [
+                'You just signed up on f Dyte ^^',
+                'You may need this code to verify your email:',
+            ],
+            lowerMessage: "If you haven't sign up on f Dyte, ignore this email '-'",
+        },
+    }
+
+    const styles = {
+        outterDiv: 'border:solid 1px rgb(253,253,253);padding:calc(1px + 4vw);' +
+            'display:flex;flex-direction:column;align-items:center;' +
+            'background:rgb(253,253,253);' +
+            'background:linear-gradient(170deg,rgb(245, 240, 252) 0%,rgb(255, 246, 245) 9%,rgb(255, 252, 245) 30%,rgb(255, 255, 255) 100%);',
+        verificationNumberDiv: 'width:calc(5px + 13vw);height:calc(3px + 9vh);' +
+            'background:rgb(253,253,253);display:flex;align-items:center;justify-content:center;' +
+            'background:linear-gradient(170deg,rgba(235, 232, 235, 0.589) 0%,rgb(236, 235, 235) 9%,rgba(230, 229, 227, 0.596) 30%,rgb(255, 255, 255) 100%);',
+    }
 
     let confirmationCode = '';
 
@@ -55,40 +88,50 @@ router.route('/confirm_email').post(async (req, res) => {
     const body_html = `<html>
         <head></head>
         <body>
-            <h1>
-                Confirm your email
-            </h1>
-            <div>
-                <p>
-                    You just signed up on f Dyte ^^
-                </p>
-
-                <p>
-                    You may need this code to verify your email:
-                </p>
+            <div style=${styles.outterDiv}>
+                <h1>
+                    ${
+                        (staticText[language]) ? staticText[language].header : staticText['en-US'].header
+                    }
+                </h1>
                 <div>
-                    <div>`
-                        + confirmationCode +
-                    `</div>
-                </div>
-            </div>
+                    <p>
+                        ${
+                            (staticText[language]) ? staticText[language].paragraphs[0] : staticText['en-US'].paragraphs[0]
+                        }
+                    </p>
 
-            <div>
-                <p>
-                    If you haven't sign up on f Dyte, ignore this email '-'
-                </p>
+                    <p>
+                        ${
+                            (staticText[language]) ? staticText[language].paragraphs[1] : staticText['en-US'].paragraphs[1]
+                        }
+                    </p>
+                    <div>
+                        <div style=${styles.verificationNumberDiv}>`
+                            + confirmationCode +
+                        `</div>
+                    </div>
+                </div>
+
+                <div>
+                    <p>
+                        ${
+                            (staticText[language]) ? staticText[language].lowerMessage : staticText['en-US'].lowerMessage
+                        }
+                    </p>
+                </div>
             </div>
         </body>
         </html>`;
 
-    const subject = "f Dyte - email confirmation";
+    const subject = (staticText[language]) ? staticText[language].subject : staticText['en-US'].subject;
 
     // The email body for recipients with non-HTML email clients.
-    const body_text = "Confirm your email\r\n"
-            + "You just signed up on f Dyte ^^\r\n"
-            + "You may need this code to verify your email:\r\n"
-            + confirmationCode + "\r\n\r\n\r\n"
-            + "If you haven't sign up on f Dyte, ignore this email '-'";
+    const body_text = `${ (staticText[language]) ? staticText[language].header : staticText['en-US'].header }\r\n`
+            + `${ (staticText[language]) ? staticText[language].paragraphs[0] : staticText['en-US'].paragraphs[0] }\r\n`
+            + `${ (staticText[language]) ? staticText[language].paragraphs[1] : staticText['en-US'].paragraphs[1] }\r\n`
+            + confirmationCode + `\r\n\r\n\r\n`
+            + `${ (staticText[language]) ? staticText[language].lowerMessage : staticText['en-US'].lowerMessage }`;
 
     // Create sendEmail params 
     let params = {
@@ -1715,11 +1758,12 @@ router.route('/pearson_correlation_between_two_users').post(async (req, res) => 
 
 const returnDocuments = async (ids, result, whichModel) => {
     const auxObject = {
-        object: ObjectModel,
+        object: FdObject,
         post: Post,
         queima: Queima,
         belle: Belle,
         comment: Comment,
+        segredinho: Segredinho,
     }
 
     const recIndexes = result.slice(0, 100);
