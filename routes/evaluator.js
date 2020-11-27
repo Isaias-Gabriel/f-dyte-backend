@@ -380,7 +380,9 @@ router.route('/update_user_rate').post(async (req, res) => {
                                     evaluator.rateHistory.push(rateHistory._id);
 
                                     evaluator.save()
-                                        .then(() => res.json(updatedEvaluator))
+                                        .then(() => res.json({
+                                            rate: updatedEvaluator.rate,
+                                        }))
                                         .catch(err => res.status(400).json('Error: ' + err));
                                     
                                 })
