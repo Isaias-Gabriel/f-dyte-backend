@@ -24,9 +24,6 @@ const { array } = require('./../config/multer');
 router.post('/post', upload.array("files", 6), async (req, res) => {
     const { content, sessionId } = req.body;
     const evaluadorId = await getEvaluatorIdBySessionId(sessionId);
-
-    console.log(req.files);
-    console.log(req.body);
     
     //get files urls
     urls = [];
@@ -115,7 +112,7 @@ router.post('/post', upload.array("files", 6), async (req, res) => {
                                                             })
                                                             .catch(err => res.status(400).json('Error: ' + err));
                                         
-                                                    }z
+                                                    }
 
                                                     res.json({
                                                         post: updatedPost,
@@ -378,8 +375,46 @@ router.route('/get_last_post_from_evaluator').post((req, res) => {
 
 //delete a post
 router.route('/delete_post').post((req, res) => {
-    Post.findByIdAndDelete(req.body.id)
-        .then(() => res.json())
+
+    const { username, id } = req.body;
+
+    Evaluator.find({
+        username: username,
+    }, 'posts ratedPosts')
+        .then(async ([creatorUser]) => {
+            //take off the id from the user posts and ratedPosts
+            const tempPosts = creatorUser.posts.filter(post => post._id.toString() !== id);
+            const tempRatedPosts = creatorUser.ratedPosts.filter(ratedPost => ratedPost._id.toString() !== id);
+
+            creatorUser.posts = tempPosts;
+            creatorUser.ratedPosts = tempRatedPosts;
+
+            creatorUser.markModified('posts');
+            creatorUser.markModified('ratedPosts');
+
+            await creatorUser.save();
+
+            //delete the post
+            const postRateHistory = (await Post.findByIdAndDelete(id)).rateHistory;
+
+            //delete the rateHistories of the post and take off the post id from the ratedPosts of the evaluators
+            //who had rated it
+            for (let rateHistory of postRateHistory) {
+                const tempEvaluatorId = (await RateHistory.findByIdAndDelete(rateHistory)).evaluatorEvaluatedRelation[0];
+
+                const [ tempEvaluator ] = await Evaluator.find({ _id: tempEvaluatorId }, 'id ratedPosts');
+
+                const tempRatedPosts = tempEvaluator.ratedPosts.filter(ratedPost => ratedPost._id.toString() !== id);
+
+                tempEvaluator.ratedPosts = tempRatedPosts;
+
+                creatorUser.markModified('ratedPosts');
+
+                await tempEvaluator.save();
+            }
+
+            res.json('');
+        })
         .catch(err => res.status(400).json('Error: ' + err));
 })
 

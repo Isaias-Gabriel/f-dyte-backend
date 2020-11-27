@@ -23,6 +23,7 @@ const { getEvaluatorIdBySessionId,  } = require("../Controllers/evaluatorSession
 const { commentToDescription } = require('../Controllers/commentToDescriptionController');
 
 const belongToBoth = require('../AuxiliaryFunctions/belongToBoth');
+const calculateRate = require('../AuxiliaryFunctions/calculateRate');
 const CommentToDescription = require('../models/commentToDescription.model');
 
 //comment on object '-'
@@ -778,35 +779,16 @@ router.route('/update_comment_rate').post(async (req, res) => {
             Evaluator.findById(evaluatorId)
                 .then(evaluator => {
 
-                    const eCurrentRate = Number(evaluator.rate);
-                    const eCurrentRateNumber = Number(evaluator.rateNumber);
+                    const evaluatorRate = Number(evaluator.rate);
+                    const evaluatorRateNumber = Number(evaluator.rateNumber);
 
                     //calculates object's new rate
                     const submittedRate = Number(req.body.rate);
 
-                    const commentCurrentRate = Number(comment.rate);
-                    const commentRateNumber = Number(comment.rateNumber);
+                    const evaluatedRate = Number(comment.rate);
+                    const evaluatedRateNumber = Number(comment.rateNumber);
 
-                    //g(x,y)= ((100)/(46050)ln(x)+(1)/(4472120) (y*10000000000)^((1)/(2))) (-1000)+100
-                    const cWeight = ((100/46050) * Mathjs.log(commentRateNumber) + 
-                        (1/4472120) * Mathjs.pow((commentCurrentRate * 10000000000),(1/2)))*(-1000) + 100 ;
-
-                    //h(x,y) = (100)/(46050)ln(x)+(1)/(4472120) ((y - 0.5)*10000000000)^((1)/(2))
-                    const eWeight = (100/46050) * Mathjs.log(eCurrentRateNumber) + 
-                        (1/4472120) * Mathjs.pow(((eCurrentRate - 0.5) * 10000000000),(1/2));
-                    
-                    //finalWeight = eWeight * (cWeight/100)
-                    const finalWeight = eWeight * (cWeight/100);
-
-                    //newRate = (1*currentRate + finalWeight*submittedRate)/1+finalWeight
-                    const newRate = (commentCurrentRate + finalWeight * submittedRate ) / (1 + finalWeight);
-
-                    if(newRate > 5) {
-                        newRate = 5;
-                    }
-                    else if(newRate < 0) {
-                        newRate = 0;
-                    }
+                    const newRate = calculateRate(evaluatorRate, evaluatedRate, evaluatorRateNumber, evaluatedRateNumber, submittedRate);
 
                     const newRateHistory = new RateHistory({
                         evaluatorEvaluatedRelation: [
@@ -818,20 +800,20 @@ router.route('/update_comment_rate').post(async (req, res) => {
                             "comment",
                         ],
                         evaluatorEvaluatedRateRelation: [
-                            evaluator.rate,
+                            evaluatorRate,
                             newRate,
                         ],
                         submittedRate: submittedRate,
                         evaluatorEvaluatedRateNumberRelation: [
-                            evaluator.rateNumber,
-                            commentRateNumber + 1,
+                            evaluatorRateNumber,
+                            evaluatedRateNumber + 1,
                         ]
                     });
 
                     newRateHistory.save()
                         .then(rateHistory => {
                             comment.rate = newRate;
-                            comment.rateNumber = commentRateNumber + 1;
+                            comment.rateNumber = evaluatedRateNumber + 1;
                             comment.rateHistory.push(rateHistory._id);
 
                             comment.save()
@@ -840,7 +822,9 @@ router.route('/update_comment_rate').post(async (req, res) => {
                                     evaluator.rateHistory.push(rateHistory._id);
 
                                     evaluator.save()
-                                        .then(() => res.json(updatedComment.rate))
+                                        .then(() => res.json({
+                                            rate: updatedComment.rate,
+                                        }))
                                         .catch(err => res.status(400).json('Error: ' + err));
                                     
                                 })

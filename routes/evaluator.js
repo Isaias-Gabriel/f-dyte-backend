@@ -29,6 +29,7 @@ const belongToBoth = require('../AuxiliaryFunctions/belongToBoth');
 const calculateRate = require('../AuxiliaryFunctions/calculateRate');
 
 const { hash, compare } = require('../AuxiliaryFunctions/fDyteHash');
+const FdObject = require('../models/fdObject.model');
 
 require('dotenv').config();
 
@@ -639,39 +640,105 @@ router.route('/add_follower_to_evaluator').post(async (req, res) => {
 
     Evaluator.find({
         username: req.body.username,
-    })
+    }, 'id username followedBy')
         .then(([ followed ]) => {
 
-            Evaluator.findById(evaluatorId)
-                .then(evaluator => {
+            Evaluator.find({
+                _id: evaluatorId,
+            }, 'id username followedEvaluators followedBy')
+                .then(([follower]) => {
                     
-                    if(!(followed._id.toString() === evaluator._id.toString())) {
-                        evaluator.followedEvaluators.unshift(followed._id);
-                        evaluator.markModified('followedEvaluators');
+                    //if the follower is different from the followed
+                    if(!(followed._id.toString() === follower._id.toString())) {
+                        follower.followedEvaluators.unshift(followed._id);
+                        followed.followedBy.unshift(follower._id);
 
-                        evaluator.save()
+                        follower.markModified('followedEvaluators');
+                        followed.markModified('followedBy');
+                        
+                        follower.save()
                             .then(() => {
-                                followed.followedBy.unshift(evaluator._id);
-                                followed.markModified('followedBy');
-
                                 followed.save()
                                     .then(updatedFollowed => {
                                         res.json(updatedFollowed.username);
                                     })
                                     .catch(err => res.status(400).json('Error: ' + err));
-
                             })
                             .catch(err => res.status(400).json('Error: ' + err));
                     }
 
                     else {
-                        evaluator.followedEvaluators.unshift(evaluator._id);
-                        evaluator.followedBy.unshift(evaluator._id);
+                        follower.followedEvaluators.unshift(follower._id);
+                        follower.followedBy.unshift(follower._id);
 
-                        evaluator.markModified('followedEvaluators');
-                        evaluator.markModified('followedBy');
+                        follower.markModified('followedEvaluators');
+                        follower.markModified('followedBy');
                         
-                        evaluator.save()
+                        follower.save()
+                            .then(updatedFollowed => {
+                                res.json(updatedFollowed.username);
+                            })
+                            .catch(err => res.status(400).json('Error: ' + err));
+                    }
+
+                })
+                .catch(err => res.status(400).json('Error: ' + err));
+
+        })
+        .catch(err => res.status(400).json('Error: ' + err));
+
+})
+
+router.route('/remove_follower_from_evaluator').post(async (req, res) => {
+    const evaluatorId = await getEvaluatorIdBySessionId(req.body.sessionId);
+
+    Evaluator.find({
+        username: req.body.username,
+    }, 'id username followedBy')
+        .then(([ followed ]) => {
+
+            Evaluator.find({
+                _id: evaluatorId,
+            }, 'id username followedEvaluators followedBy')
+                .then(([follower]) => {
+                    
+                    if(!(followed._id.toString() === follower._id.toString())) {
+                        console.log(followed)
+
+                        let tempFollowedEvaluators = follower.followedEvaluators.filter(ev => ev.toString() !== follower._id.toString());
+
+                        let tempFollowedBy = followed.followedBy.filter(ev => ev.toString() !== follower._id.toString());
+
+                        follower.followedEvaluators = tempFollowedEvaluators;
+                        followed.followedBy = tempFollowedBy;
+
+                        follower.markModified('followedEvaluators');
+                        followed.markModified('followedBy');
+                        
+                        follower.save()
+                            .then(() => {
+                                followed.save()
+                                    .then(updatedFollowed => {
+                                        console.log(updatedFollowed)
+                                        res.json(updatedFollowed.username);
+                                    })
+                                    .catch(err => res.status(400).json('Error: ' + err));
+                            })
+                            .catch(err => res.status(400).json('Error: ' + err));
+                    }
+
+                    else {
+                        let tempFollowedEvaluators = follower.followedEvaluators.filter(ev => ev.toString() !== follower._id.toString());
+
+                        let tempFollowedBy = follower.followedBy.filter(ev => ev.toString() !== follower._id.toString());
+
+                        follower.followedEvaluators = tempFollowedEvaluators;
+                        follower.followedBy = tempFollowedBy;
+
+                        follower.markModified('followedEvaluators');
+                        follower.markModified('followedBy');
+                        
+                        follower.save()
                             .then(updatedFollowed => {
                                 res.json(updatedFollowed.username);
                             })
@@ -1791,11 +1858,54 @@ router.route('/get_recommendations').post(async (req, res) => {
     const evaluatorId = await getEvaluatorIdBySessionId(req.body.sessionId);
     const includeAsRated = req.body.includeAsRated;
 
-    //console.log(includeAsRated);
+    const [ tempEvaluator ] = await Evaluator.find({
+            _id: evaluatorId,
+        }, 'ratedObjects ratedComments ratedPosts ratedSegredinhos ratedQueimas ratedBelles');
 
-    const recommendations = await getDocumentRecommendations(evaluatorId, includeAsRated)
+    const numberOfRatedDocuments = tempEvaluator.ratedObjects.length + 
+        tempEvaluator.ratedComments.length +  tempEvaluator.ratedPosts.length +
+        tempEvaluator.ratedSegredinhos.length +  tempEvaluator.ratedQueimas.length +
+        tempEvaluator.ratedBelles.length;
 
-    //console.log(recommendations);
+    let recommendations = [];
+
+    if(numberOfRatedDocuments) {
+        recommendations = await getDocumentRecommendations(evaluatorId, includeAsRated);
+    }
+
+    else {
+        let auxArray = await Belle.find({
+                },
+                'id type content userName userUsername userProfilePictureUrl rate rateNumber createdAt'
+            )
+            .sort({ rate: -1, }).limit(10);
+
+        recommendations = recommendations.concat(auxArray);
+
+        auxArray = await Post.find({
+                },
+                'id type content userName userUsername userProfilePictureUrl rate rateNumber createdAt'
+            )
+            .sort({ rate: -1, }).limit(80);
+            
+        recommendations = recommendations.concat(auxArray);
+
+        auxArray = await FdObject.find({
+                },
+                'id type rate rateNumber name nickname categories description urls createdAt'
+            )
+            .sort({ rate: -1, }).limit(40);
+            
+        recommendations = recommendations.concat(auxArray);
+
+        auxArray = await Queima.find({
+            },
+            'id type content userName userUsername userProfilePictureUrl rate rateNumber createdAt'
+        )
+        .sort({ rate: -1, }).limit(7);
+
+        recommendations = recommendations.concat(auxArray);
+    }
 
     res.json({
         recommendations: recommendations,

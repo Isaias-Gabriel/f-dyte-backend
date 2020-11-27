@@ -50,7 +50,7 @@ const evaluatorSchema = new Schema({
     followedObjects: Array,
     //array with the ids of the evaluators that the user is following
     followedEvaluators: Array,
-    //array with the evaluators ids that are following the user
+    //array with the users ids that are following the user
     followedBy: Array,
 
     //array with notifications ids

@@ -205,4 +205,49 @@ router.route('/update_segredinho_rate').post(async (req, res) => {
 
 })
 
+//delete a post
+router.route('/delete_segredinho').post((req, res) => {
+
+    const { username, id } = req.body;
+
+    Evaluator.find({
+        username: username,
+    }, 'segredinhos ratedSegredinhos')
+        .then(async ([creatorUser]) => {
+            //take off the id from the user posts and ratedPosts
+            const tempSegredinhos = creatorUser.segredinhos.filter(segredinho => segredinho._id.toString() !== id);
+            const tempRatedSegredinhos = creatorUser.ratedSegredinhos.filter(ratedSegredinho => ratedSegredinho._id.toString() !== id);
+
+            creatorUser.segredinhos = tempSegredinhos;
+            creatorUser.ratedSegredinhos = tempRatedSegredinhos;
+
+            creatorUser.markModified('segredinhos');
+            creatorUser.markModified('ratedSegredinhos');
+
+            await creatorUser.save();
+
+            //delete the segredinho
+            const segredinhoRateHistory = (await Segredinho.findByIdAndDelete(id)).rateHistory;
+
+            //delete the rateHistories of the segredinho and take off the segredinho id from the ratedSegredinhos of the evaluators
+            //who had rated it
+            for (let rateHistory of segredinhoRateHistory) {
+                const tempEvaluatorId = (await RateHistory.findByIdAndDelete(rateHistory)).evaluatorEvaluatedRelation[0];
+
+                const [ tempEvaluator ] = await Evaluator.find({ _id: tempEvaluatorId }, 'id ratedSegredinhos');
+
+                const tempRatedSegredinhos = tempEvaluator.ratedSegredinhos.filter(ratedSegredinho => ratedSegredinho._id.toString() !== id);
+
+                tempEvaluator.ratedSegredinhos = tempRatedSegredinhos;
+
+                creatorUser.markModified('ratedSegredinhos');
+
+                await tempEvaluator.save();
+            }
+
+            res.json('');
+        })
+        .catch(err => res.status(400).json('Error: ' + err));
+})
+
 module.exports = router;
