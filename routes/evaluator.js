@@ -748,7 +748,6 @@ router.route('/remove_follower_from_evaluator').post(async (req, res) => {
                 .then(([follower]) => {
                     
                     if(!(followed._id.toString() === follower._id.toString())) {
-                        console.log(followed)
 
                         let tempFollowedEvaluators = follower.followedEvaluators.filter(ev => ev.toString() !== follower._id.toString());
 
@@ -1900,26 +1899,30 @@ async function getDocumentRecommendations(evaluatorId, includeAsRated) {
 }
 
 router.route('/get_recommendations').post(async (req, res) => {
-    //recommend
-    const evaluatorId = await getEvaluatorIdBySessionId(req.body.sessionId);
-    const includeAsRated = req.body.includeAsRated;
 
-    const [ tempEvaluator ] = await Evaluator.find({
-            _id: evaluatorId,
-        }, 'ratedObjects ratedComments ratedPosts ratedSegredinhos ratedQueimas ratedBelles');
+    let recommendations = [], numberOfRatedDocuments = 0;
 
-    const numberOfRatedDocuments = tempEvaluator.ratedObjects.length + 
-        tempEvaluator.ratedComments.length +  tempEvaluator.ratedPosts.length +
-        tempEvaluator.ratedSegredinhos.length +  tempEvaluator.ratedQueimas.length +
-        tempEvaluator.ratedBelles.length;
+    if(req.body.sessionId) {
+        const evaluatorId = await getEvaluatorIdBySessionId(req.body.sessionId);
+        const includeAsRated = req.body.includeAsRated;
 
-    let recommendations = [];
+        const [ tempEvaluator ] = await Evaluator.find({
+                _id: evaluatorId,
+            }, 'ratedObjects ratedComments ratedPosts ratedSegredinhos ratedQueimas ratedBelles');
 
-    if(numberOfRatedDocuments) {
-        recommendations = await getDocumentRecommendations(evaluatorId, includeAsRated);
+        numberOfRatedDocuments = tempEvaluator.ratedObjects.length + 
+            tempEvaluator.ratedComments.length +  tempEvaluator.ratedPosts.length +
+            tempEvaluator.ratedSegredinhos.length +  tempEvaluator.ratedQueimas.length +
+            tempEvaluator.ratedBelles.length;
+
+        
+
+        if(numberOfRatedDocuments) {
+            recommendations = await getDocumentRecommendations(evaluatorId, includeAsRated);
+        }
     }
 
-    else {
+    if(!(req.body.sessionId) || !(numberOfRatedDocuments)) {
         let auxArray = await Belle.find({
                 },
                 'id type content userName userUsername userProfilePictureUrl rate rateNumber createdAt'
