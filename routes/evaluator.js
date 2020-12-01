@@ -1140,7 +1140,7 @@ router.route('/return_feed').post(async (req, res) => {
 })
 
 function whatToSugest(documentType, documentId) {
-    auxObject = {
+    const auxObject = {
         object: ObjectModel,
         evaluator: Evaluator,
         post: Post,

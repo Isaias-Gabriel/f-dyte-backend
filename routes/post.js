@@ -214,51 +214,75 @@ router.route('/update_post_rate').post(async (req, res) => {
 })
 
 //get all the posts from one user - need user logged in info
-router.route('/get_all_posts').post(async(req, res) => {
+router.route('/get_all_posts').post(async (req, res) => {
+    
+    const { sessionId } = req.body;
 
-    const evaluatorId = await getEvaluatorIdBySessionId(req.body.sessionId);
+    //if there's a user logged in
+    if(sessionId) {
+        const evaluatorId = await getEvaluatorIdBySessionId(sessionId);
 
-    Evaluator.findById(evaluatorId)
-        .then(evaluator => {
+        Evaluator.findById(evaluatorId)
+            .then(evaluator => {
 
-            Evaluator.find({
-                username: req.body.username,
-            })
-                .then(([profile]) => {
-                    
-                    let ratedPosts = belongToBoth(evaluator.ratedPosts, profile.posts);
-                    const ratedSegredinhos = belongToBoth(evaluator.ratedSegredinhos, profile.segredinhos);
-
-                    Post.find({
-                        userUsername: req.body.username,
-                    }).sort({ createdAt: -1, })
-                        .then(posts => {
-
-                            Segredinho.find({
-                                userUsername: req.body.username,
-                            }).sort({ createdAt: -1, })
-                                .then(segredinhos => {
-
-                                    posts = posts.concat(segredinhos);
-
-                                    posts = posts.sort(function(a, b){return b.date - a.date});
-                                    ratedPosts = ratedPosts.concat(ratedSegredinhos);
-
-                                    res.json({
-                                        posts: posts,
-                                        ratedPosts: ratedPosts,
-                                    });
-                                })
-
-                            
-                        })
-                        .catch(err => res.status(400).json('Error: ' + err));
-                        
+                Evaluator.find({
+                    username: req.body.username,
                 })
-                .catch(err => res.status(400).json('Error: ' + err));
-                
-        })
-        .catch(err => res.status(400).json('Error: ' + err));
+                    .then(([profile]) => {
+                        
+                        let ratedPosts = belongToBoth(evaluator.ratedPosts, profile.posts);
+                        const ratedSegredinhos = belongToBoth(evaluator.ratedSegredinhos, profile.segredinhos);
+
+                        Post.find({
+                            userUsername: req.body.username,
+                        }).sort({ createdAt: -1, })
+                            .then(posts => {
+
+                                Segredinho.find({
+                                    userUsername: req.body.username,
+                                }).sort({ createdAt: -1, })
+                                    .then(segredinhos => {
+
+                                        posts = posts.concat(segredinhos);
+
+                                        posts = posts.sort(function(a, b){return b.date - a.date});
+                                        ratedPosts = ratedPosts.concat(ratedSegredinhos);
+
+                                        res.json({
+                                            posts: posts,
+                                            ratedPosts: ratedPosts,
+                                        });
+                                    })
+
+                                
+                            })
+                            .catch(err => res.status(400).json('Error: ' + err));
+                            
+                    })
+                    .catch(err => res.status(400).json('Error: ' + err));
+                    
+            })
+            .catch(err => res.status(400).json('Error: ' + err));
+    }
+
+    else {
+        
+        let posts= await Post.find({
+                userUsername: req.body.username,
+            }, 'id type userProfilePictureUrl userName userUsername rate rateNumber content type').sort({ createdAt: -1, })
+
+        let segredinhos = await Segredinho.find({
+            userUsername: req.body.username,
+        }, 'id type userProfilePictureUrl userName userUsername rate rateNumber content type').sort({ createdAt: -1, })
+
+        posts = posts.concat(segredinhos);
+
+        posts = posts.sort(function(a, b){return b.date - a.date});
+
+        res.json({
+            posts: posts,
+        });
+    }
 
 })
 

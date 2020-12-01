@@ -873,6 +873,81 @@ router.route('/get_object_comments_by_section/:nickname&:commentSection').post((
 
 })
 
+//return comments according to the type of the document (only posts, segredinhos, queimas, belles and comments)
+router.route('/get_comments').post(async (req, res) => {
+    const auxObject = {
+        post: Post,
+        segredinho: Segredinho,
+        queima: Queima,
+        belle: Belle,
+        comment: Comment,
+    }
+
+    const { id, type } = req.body;
+
+    const [ document ] = await auxObject[req.body.type].find({
+            _id: id,
+        }, 'comments');
+
+    // let userProfilePictureUrl = '', userName = '', userUsername = '';
+
+    // if(!document.comments.length) {
+    //     const [ tempComment ] = await Comment.find({
+    //         _id: document.comments[0],
+    //     }, 'userProfilePictureUrl userName userUsername');
+
+    //     userProfilePictureUrl = tempComment.userProfilePictureUrl;
+    //     userName = tempComment.userName;
+    //     userUsername = tempComment.userUsername;
+    // }
+
+    const comments = await Comment.find({
+            _id: { $in: document.comments },
+        }, 'userProfilePictureUrl userName userUsername content rate rateNumber type comments');
+
+    res.json({
+        comments,
+        // userProfilePictureUrl,
+        // userName,
+        // userUsername,
+    });
+
+    // //get the comments by comment section according to the object and the user
+    // Post.findById({
+    //     "_id": req.body.id
+    // })
+    // .then(async post => {
+        
+    //     const evaluatorId = await getEvaluatorIdBySessionId(req.body.sessionId);
+
+    //     Evaluator.findById(evaluatorId)
+    //         .then(evaluator => {
+    //             //find the comments on the object that the user rated
+    //             //basically the intersection between the post.comments and evaluator.ratedComments
+    //             const ratedComments = belongToBoth(evaluator.ratedComments, post.comments);
+
+    //             Comment.find({
+    //                 _id: { $in: post.comments },
+    //             })
+    //                 .then(comments => {
+    //                     //sort by rateNumber (the more rated ones first)
+    //                     comments = comments.sort(function(a, b){return b.rateNumber - a.rateNumber});
+
+    //                     res.json({
+    //                         comments: comments,
+    //                         ratedComments: ratedComments,
+    //                     });
+    //                 })
+    //                 .catch(err => res.status(400).json('Error: ' + err));
+                
+    //         })
+    //         .catch(err => res.status(400).json('Error: ' + err));
+            
+    // })
+    // .catch(err => res.status(400).json('Error: ' + err));
+
+})
+
 //return comments from a certain object
 router.route('/get_object_comments').post((req, res) => {
 
@@ -935,7 +1010,6 @@ router.route('/get_object_comments').post((req, res) => {
 
 //return comments from a certain post
 router.route('/get_post_comments').post((req, res) => {
-
     //get the comments by comment section according to the object and the user
     Post.findById({
         "_id": req.body.id
