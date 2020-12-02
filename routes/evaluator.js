@@ -667,11 +667,11 @@ router.post('/update_evaluator_info', async (req, res) => {
 
             evaluator.save()
                 .then(updatedEvaluator => {
+                    res.json(updatedEvaluator);
+
                     if(name || username) {
                         updateEvaluatorTrack(name, username, updatedEvaluator);
                     }
-
-                    res.json(updatedEvaluator)
                 })
                 .catch(err => res.status(400).json('Error: ' + err));
             
@@ -880,17 +880,17 @@ router.post("/update_evaluator_profile_picture", upload.array("files", 1), async
 
     Evaluator.find({
         username: req.body.originalUsername
-    })
+    }, 'profilePictureUrl posts queimas belles comments')
         .then(([ evaluator ]) => {
             
             evaluator.profilePictureUrl = profilePictureUrl;
 
             evaluator.save()
                 .then(updatedEvaluator => {
+
+                    res.json(profilePictureUrl);
                     
                     updateEvaluatorProfilePictureTrack(profilePictureUrl, updatedEvaluator);
-
-                    res.json(profilePictureUrl)
                 })
                 .catch(err => res.status(400).json('Error: ' + err));
             
